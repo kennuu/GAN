@@ -14,7 +14,7 @@ def indices_to_one_hot(data, nb_classes):
 
 
 class DCGAN:
-    def __init__(self, img_shape, epochs=50000, lr_gen=0.0001, lr_disc=0.0001, z_shape=100, batch_size=64, beta1=0.5, epochs_for_sample=1000):
+    def __init__(self, img_shape, epochs=50000, lr_gen=0.0001, lr_disc=0.0001, z_shape=11, batch_size=64, beta1=0.5, epochs_for_sample=1000):
         
        
         self.rows, self.cols, self.channels = img_shape
@@ -22,7 +22,7 @@ class DCGAN:
         self.epochs = epochs
         self.z_shape = z_shape
         self.epochs_for_sample = epochs_for_sample
-        self.generator = Generator(img_shape, self.batch_size)
+        self.generator = Generator(img_shape, self.batch_size, self.z_shape)
         self.discriminator = Discriminator(img_shape)
 
         mnist = tf.keras.datasets.mnist 
@@ -72,8 +72,6 @@ class DCGAN:
             # add digit information in the input
             batch_Z[:, :10] = 0.
             np.put_along_axis(batch_Z, np.random.randint(10, size=self.batch_size)[..., np.newaxis], 1, axis=1)
-
-
             _, d_loss = self.sess.run([self.disc_train, self.disc_loss], feed_dict={self.phX:batch_X, self.phZ:batch_Z})
             batch_Z = np.random.uniform(-1, 1, (self.batch_size, self.z_shape))
             batch_Z[:, :10] = 0.
