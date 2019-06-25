@@ -14,7 +14,7 @@ def indices_to_one_hot(data, nb_classes):
 
 
 class DCGAN:
-    def __init__(self, img_shape, epochs=50000, lr_gen=0.0001, lr_disc=0.0001, z_shape=11, batch_size=64, beta1=0.5, epochs_for_sample=1000):
+    def __init__(self, img_shape, epochs=50000, lr_gen=0.0001, lr_disc=0.0001, z_shape=11, batch_size=64, beta1=0.5, epochs_for_sample=10000):
         
        
         self.rows, self.cols, self.channels = img_shape
@@ -105,7 +105,7 @@ class DCGAN:
 
 if __name__ == '__main__':
     img_shape = (28, 28, 1)
-    epochs = 100000
+    epochs = 500000
     dcgan = DCGAN(img_shape, epochs)
 
     if not os.path.exists('samples/'):
