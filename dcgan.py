@@ -6,6 +6,13 @@ from discriminator import Discriminator
 from ops import *
 import os
 
+
+def indices_to_one_hot(data, nb_classes):
+    """Convert an iterable of indices to one-hot encoded labels."""
+    targets = np.array(data).reshape(-1)
+    return np.eye(nb_classes)[targets]
+
+
 class DCGAN:
     def __init__(self, img_shape, epochs=50000, lr_gen=0.0001, lr_disc=0.0001, z_shape=100, batch_size=64, beta1=0.5, epochs_for_sample=500):
         
@@ -17,11 +24,6 @@ class DCGAN:
         self.epochs_for_sample = epochs_for_sample
         self.generator = Generator(img_shape, self.batch_size)
         self.discriminator = Discriminator(img_shape)
-
-        def indices_to_one_hot(data, nb_classes):
-            """Convert an iterable of indices to one-hot encoded labels."""
-            targets = np.array(data).reshape(-1)
-            return np.eye(nb_classes)[targets]
 
         mnist = tf.keras.datasets.mnist 
         (x_train, y_train), (x_test, y_test) = mnist.load_data()
@@ -67,6 +69,8 @@ class DCGAN:
             idx = np.random.randint(0, len(self.X), self.batch_size)
             batch_X = self.X[idx]
             batch_Z = np.random.uniform(-1, 1, (self.batch_size, self.z_shape))
+            batch_Z[:, :10] = 0.
+            np.put_along_axis(batch_Z, np.random.randint(10, size=self.batch_size)[..., np.newaxis], 1, axis=1)
 
 
             _, d_loss = self.sess.run([self.disc_train, self.disc_loss], feed_dict={self.phX:batch_X, self.phZ:batch_Z})
