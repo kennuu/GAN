@@ -76,6 +76,8 @@ class DCGAN:
 
             _, d_loss = self.sess.run([self.disc_train, self.disc_loss], feed_dict={self.phX:batch_X, self.phZ:batch_Z})
             batch_Z = np.random.uniform(-1, 1, (self.batch_size, self.z_shape))
+            batch_Z[:, :10] = 0.
+            np.put_along_axis(batch_Z, np.random.randint(10, size=self.batch_size)[..., np.newaxis], 1, axis=1)
             _, g_loss = self.sess.run([self.gen_train, self.gen_loss], feed_dict={self.phZ: batch_Z})
             if i % self.epochs_for_sample == 0:
                 self.generate_sample(i)
@@ -86,6 +88,8 @@ class DCGAN:
         c = 7
         r = 7
         z = np.random.uniform(-1, 1, (self.batch_size, self.z_shape))
+        z[:, :10] = 0.
+        np.put_along_axis(z, np.random.randint(10, size=self.batch_size)[..., np.newaxis], 1, axis=1)
         imgs = self.sess.run(self.gen_out, feed_dict={self.phZ:z})
         imgs = imgs*0.5 + 0.5
         # scale between 0, 1
