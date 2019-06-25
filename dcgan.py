@@ -14,7 +14,7 @@ def indices_to_one_hot(data, nb_classes):
 
 
 class DCGAN:
-    def __init__(self, img_shape, epochs=50000, lr_gen=0.0001, lr_disc=0.0001, z_shape=100, batch_size=64, beta1=0.5, epochs_for_sample=500):
+    def __init__(self, img_shape, epochs=50000, lr_gen=0.0001, lr_disc=0.0001, z_shape=100, batch_size=64, beta1=0.5, epochs_for_sample=1000):
         
        
         self.rows, self.cols, self.channels = img_shape
@@ -69,6 +69,7 @@ class DCGAN:
             idx = np.random.randint(0, len(self.X), self.batch_size)
             batch_X = self.X[idx]
             batch_Z = np.random.uniform(-1, 1, (self.batch_size, self.z_shape))
+            # add digit information in the input
             batch_Z[:, :10] = 0.
             np.put_along_axis(batch_Z, np.random.randint(10, size=self.batch_size)[..., np.newaxis], 1, axis=1)
 
@@ -102,7 +103,7 @@ class DCGAN:
 
 if __name__ == '__main__':
     img_shape = (28, 28, 1)
-    epochs = 50000
+    epochs = 100000
     dcgan = DCGAN(img_shape, epochs)
 
     if not os.path.exists('samples/'):
