@@ -18,11 +18,22 @@ class DCGAN:
         self.generator = Generator(img_shape, self.batch_size)
         self.discriminator = Discriminator(img_shape)
 
+        def indices_to_one_hot(data, nb_classes):
+            """Convert an iterable of indices to one-hot encoded labels."""
+            targets = np.array(data).reshape(-1)
+            return np.eye(nb_classes)[targets]
+
         mnist = tf.keras.datasets.mnist 
-        (x_train, _), (x_test, _) = mnist.load_data()
+        (x_train, y_train), (x_test, y_test) = mnist.load_data()
 
         X = np.concatenate([x_train, x_test])
+
+        # replace the last column with the digit information in the input data
+        Y = np.concatenate([y_train, y_test])
+        Y_onehot = indices_to_one_hot(Y, self.rows)
         self.X = X / 127.5 - 1 # Scale between -1 and 1
+        self.X[:, :, -1] = Y_onehot
+
         self.phX = tf.placeholder(tf.float32, [None, self.rows, self.cols])
         self.phZ = tf.placeholder(tf.float32, [None, self.z_shape])
     
