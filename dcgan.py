@@ -87,7 +87,8 @@ class DCGAN:
         r = 7
         z = np.random.uniform(-1, 1, (self.batch_size, self.z_shape))
         z[:, :10] = 0.
-        np.put_along_axis(z, np.random.randint(10, size=self.batch_size)[..., np.newaxis], 1, axis=1)
+        y = np.random.randint(10, size=self.batch_size)
+        np.put_along_axis(z, y[..., np.newaxis], 1, axis=1)
         imgs = self.sess.run(self.gen_out, feed_dict={self.phZ:z})
         imgs = imgs*0.5 + 0.5
         # scale between 0, 1
@@ -97,6 +98,7 @@ class DCGAN:
             for j in range(r):
                 axs[i, j].imshow(imgs[cnt, :, :, 0], cmap="gray")
                 axs[i, j].axis('off')
+                axs[i, j].set_title(str(y[cnt]), size=5, pad=0.5)
                 cnt += 1
         fig.savefig("samples/" + str(epoch).zfill(len(str(self.epochs))) + ".png")
         plt.close()
@@ -106,7 +108,8 @@ class DCGAN:
 if __name__ == '__main__':
     img_shape = (28, 28, 1)
     epochs = 500000
-    dcgan = DCGAN(img_shape, epochs)
+    epochs_for_sample = 100
+    dcgan = DCGAN(img_shape, epochs, epochs_for_sample=epochs_for_sample)
 
     if not os.path.exists('samples/'):
         os.makedirs('samples/')
