@@ -99,6 +99,8 @@ class DCGAN:
                 axs[i, j].imshow(imgs[cnt, :, :, 0], cmap="gray")
                 axs[i, j].axis('off')
                 axs[i, j].set_title(str(y[cnt]), size=5, pad=0.5)
+                axs[i, j].text(30, 13.5, str(np.argmax(imgs[cnt, :, -1, 0])), size=5,
+                               verticalalignment='center')
                 cnt += 1
         fig.savefig("samples/" + str(epoch).zfill(len(str(self.epochs))) + ".png")
         plt.close()
