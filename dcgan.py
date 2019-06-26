@@ -108,7 +108,7 @@ class DCGAN:
 if __name__ == '__main__':
     img_shape = (28, 28, 1)
     epochs = 500000
-    epochs_for_sample = 100
+    epochs_for_sample = 10000
     dcgan = DCGAN(img_shape, epochs, epochs_for_sample=epochs_for_sample)
 
     if not os.path.exists('samples/'):
