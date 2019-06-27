@@ -101,7 +101,7 @@ class DCGAN:
         cnt = 0
         for i in range(c):
             for j in range(r):
-                print(imgs[cnt, -1, :, 0])
+                # print(imgs[cnt, -1, :, 0])
                 axs[i, j].imshow(imgs[cnt, :, :, 0], cmap="gray")
                 axs[i, j].axis('off')
                 axs[i, j].set_title(str(y[cnt]), size=7, pad=0.5)
