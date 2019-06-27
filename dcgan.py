@@ -67,24 +67,24 @@ class DCGAN:
         self.sess.run(init)
 
         for i in range(self.epochs):
-            print(i)
+            # print(i)
             idx = np.random.randint(0, len(self.X), self.batch_size)
             batch_X = self.X[idx]
             batch_Z = np.random.uniform(-1, 1, (self.batch_size, self.z_shape))
             # add digit information in the input
             batch_Z[:, :10] = 0.
-            if i % self.epochs_for_sample == 0:
-                self.generate_sample(i)
-                print(i)
+            # if i % self.epochs_for_sample == 0:
+            #     self.generate_sample(i)
+            #     print(i)
             np.put_along_axis(batch_Z, np.random.randint(10, size=self.batch_size)[..., np.newaxis], 1, axis=1)
             _, d_loss = self.sess.run([self.disc_train, self.disc_loss], feed_dict={self.phX:batch_X, self.phZ:batch_Z})
             batch_Z = np.random.uniform(-1, 1, (self.batch_size, self.z_shape))
             batch_Z[:, :10] = 0.
             np.put_along_axis(batch_Z, np.random.randint(10, size=self.batch_size)[..., np.newaxis], 1, axis=1)
             _, g_loss = self.sess.run([self.gen_train, self.gen_loss], feed_dict={self.phZ: batch_Z})
-            # if i % self.epochs_for_sample == 0:
-            #     self.generate_sample(i)
-            #     print(f"Epoch: {i}. Discriminator loss: {d_loss}. Generator loss: {g_loss}")
+            if i % self.epochs_for_sample == 0:
+                self.generate_sample(i)
+                print(f"Epoch: {i}. Discriminator loss: {d_loss}. Generator loss: {g_loss}")
 
 
     def generate_sample(self, epoch):
@@ -124,7 +124,7 @@ if __name__ == '__main__':
     # FIXME: doesn't work currently, maybe is fixed if pycharm is restarted?
 
     epochs = 500000
-    epochs_per_sample = 10000
+    epochs_for_sample = 10000
 
     print(epochs, epochs_for_sample)
     dcgan = DCGAN(img_shape, epochs, epochs_for_sample=epochs_for_sample)
