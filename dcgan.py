@@ -35,6 +35,7 @@ class DCGAN:
         Y_onehot = indices_to_one_hot(Y, self.rows)
         self.X = X / 127.5 - 1 # Scale between -1 and 1
         self.X[:, :, -1] = Y_onehot
+        self.X[:, -1, :] = Y_onehot
 
         self.phX = tf.placeholder(tf.float32, [None, self.rows, self.cols])
         self.phZ = tf.placeholder(tf.float32, [None, self.z_shape])
@@ -66,20 +67,24 @@ class DCGAN:
         self.sess.run(init)
 
         for i in range(self.epochs):
+            print(i)
             idx = np.random.randint(0, len(self.X), self.batch_size)
             batch_X = self.X[idx]
             batch_Z = np.random.uniform(-1, 1, (self.batch_size, self.z_shape))
             # add digit information in the input
             batch_Z[:, :10] = 0.
+            if i % self.epochs_for_sample == 0:
+                self.generate_sample(i)
+                print(i)
             np.put_along_axis(batch_Z, np.random.randint(10, size=self.batch_size)[..., np.newaxis], 1, axis=1)
             _, d_loss = self.sess.run([self.disc_train, self.disc_loss], feed_dict={self.phX:batch_X, self.phZ:batch_Z})
             batch_Z = np.random.uniform(-1, 1, (self.batch_size, self.z_shape))
             batch_Z[:, :10] = 0.
             np.put_along_axis(batch_Z, np.random.randint(10, size=self.batch_size)[..., np.newaxis], 1, axis=1)
             _, g_loss = self.sess.run([self.gen_train, self.gen_loss], feed_dict={self.phZ: batch_Z})
-            if i % self.epochs_for_sample == 0:
-                self.generate_sample(i)
-                print(f"Epoch: {i}. Discriminator loss: {d_loss}. Generator loss: {g_loss}")
+            # if i % self.epochs_for_sample == 0:
+            #     self.generate_sample(i)
+            #     print(f"Epoch: {i}. Discriminator loss: {d_loss}. Generator loss: {g_loss}")
 
 
     def generate_sample(self, epoch):
@@ -96,10 +101,11 @@ class DCGAN:
         cnt = 0
         for i in range(c):
             for j in range(r):
+                print(imgs[cnt, -1, :, 0])
                 axs[i, j].imshow(imgs[cnt, :, :, 0], cmap="gray")
                 axs[i, j].axis('off')
-                axs[i, j].set_title(str(y[cnt]), size=5, pad=0.5)
-                axs[i, j].text(30, 13.5, str(np.argmax(imgs[cnt, :, -1, 0])), size=5,
+                axs[i, j].set_title(str(y[cnt]), size=7, pad=0.5)
+                axs[i, j].text(30, 13.5, str(np.argmax(imgs[cnt, :, -1, 0])), size=7,
                                verticalalignment='center')
                 cnt += 1
         fig.savefig("samples/" + str(epoch).zfill(len(str(self.epochs))) + ".png")
@@ -109,8 +115,18 @@ class DCGAN:
 
 if __name__ == '__main__':
     img_shape = (28, 28, 1)
+
+    # if os.environ.get('LOCAL')!='TRUE':
+    #     epochs = 500000
+    #     epochs_for_sample = 10000
+    # else:
+    #     epochs = 10000
+    # FIXME: doesn't work currently, maybe is fixed if pycharm is restarted?
+
     epochs = 500000
-    epochs_for_sample = 10000
+    epochs_per_sample = 10000
+
+    print(epochs, epochs_for_sample)
     dcgan = DCGAN(img_shape, epochs, epochs_for_sample=epochs_for_sample)
 
     if not os.path.exists('samples/'):
