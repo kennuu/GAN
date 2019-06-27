@@ -83,7 +83,10 @@ def _make_slices_begin_size(input_, slices):
 
 if __name__ == '__main__':
     with tf.Graph().as_default():
-        x = tf.reshape(tf.range(60), (4, 3, 5))
-        x2 = replace_slice_in(x)[:2, ..., -3:].with_value([100.1, 200, 300])
+        x = tf.to_float(tf.reshape(tf.range(60), (4, 3, 5, 1)))
+        y = tf.to_float(tf.reshape(tf.range(12), (4, 1, 3, 1)))
+        x2 = replace_slice_in(x)[:, 2, :3, 0].with_value(y)
         with tf.Session() as sess:
-            print(sess.run(x2))
+            print(sess.run(x))
+            print(sess.run(y))
+            print(sess.run(x2).squeeze())

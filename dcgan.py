@@ -36,6 +36,7 @@ class DCGAN:
         self.X = X / 127.5 - 1 # Scale between -1 and 1
         self.X[:, :, -1] = Y_onehot
         self.X[:, -1, :] = Y_onehot
+        # FIXME: only works with rectangular images, because the same Y_onehot vector is used for both column & row
 
         self.phX = tf.placeholder(tf.float32, [None, self.rows, self.cols])
         self.phZ = tf.placeholder(tf.float32, [None, self.z_shape])
@@ -96,6 +97,7 @@ class DCGAN:
         np.put_along_axis(z, y[..., np.newaxis], 1, axis=1)
         imgs = self.sess.run(self.gen_out, feed_dict={self.phZ:z})
         imgs = imgs*0.5 + 0.5
+
         # scale between 0, 1
         fig, axs = plt.subplots(c, r)
         cnt = 0
@@ -121,7 +123,7 @@ if __name__ == '__main__':
     #     epochs_for_sample = 10000
     # else:
     #     epochs = 10000
-    # FIXME: doesn't work currently, maybe is fixed if pycharm is restarted?
+    # FIXME: doesn't work currently, maybe gets fixed if pycharm is restarted?
 
     epochs = 500000
     epochs_for_sample = 10000

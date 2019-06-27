@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from ops import *
 from tensorflow.layers import batch_normalization
 from tensorflow.keras.layers import UpSampling2D
+from replace_slice_in_tensor import replace_slice_in
 
 class Generator:
     def __init__(self, img_shape, batch_size, z_shape):
@@ -33,8 +34,13 @@ class Generator:
         z = tf.nn.leaky_relu(z)
 
         z = conv2d(z, self.W4, [1, 1, 1, 1], padding="SAME") 
+        z = tf.nn.tanh(z)
 
-        return tf.nn.tanh(z)
+        # add desired-digit information in the last row
+        z = replace_slice_in(z)[:, self.img_rows - 1, :, 0].with_value(0.)
+        z = replace_slice_in(z)[:, self.img_rows - 1, :10, 0].with_value(tf.reshape(X[:, :10], (self.batch_size, 1, 10, 1)))
+
+        return z
 
 
 
