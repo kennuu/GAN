@@ -24,6 +24,7 @@ class DCGAN:
         self.epochs_for_sample = epochs_for_sample
         self.generator = Generator(img_shape, self.batch_size, self.z_shape)
         self.discriminator = Discriminator(img_shape)
+        self.matching = 0
 
         mnist = tf.keras.datasets.mnist 
         (x_train, y_train), (x_test, y_test) = mnist.load_data()
@@ -85,7 +86,7 @@ class DCGAN:
             _, g_loss = self.sess.run([self.gen_train, self.gen_loss], feed_dict={self.phZ: batch_Z})
             if i % self.epochs_for_sample == 0:
                 self.generate_sample(i)
-                print(f"Epoch: {i}. Discriminator loss: {d_loss}. Generator loss: {g_loss}")
+                print(f"Epoch: {i}. Discriminator loss: {d_loss}. Generator loss: {g_loss}. Matching digit indicators: {self.matching}")
 
 
     def generate_sample(self, epoch):
@@ -97,9 +98,12 @@ class DCGAN:
         np.put_along_axis(z, y[..., np.newaxis], 1, axis=1)
         imgs = self.sess.run(self.gen_out, feed_dict={self.phZ:z})
         imgs = imgs*0.5 + 0.5
+        result = np.argmax(imgs[:, :, -1, 0], axis=1)
+        self.matching = np.sum(y == result)
 
         # scale between 0, 1
         fig, axs = plt.subplots(c, r)
+        fig.suptitle(f"Matching indices: {self.matching}")
         cnt = 0
         for i in range(c):
             for j in range(r):
@@ -110,7 +114,7 @@ class DCGAN:
                 # else:
                 #     col = 'r'
                 axs[i, j].set_title(str(y[cnt]), size=7, pad=0.5) #, color = col)
-                axs[i, j].text(30, 13.5, str(np.argmax(imgs[cnt, :, -1, 0])), size=7,
+                axs[i, j].text(30, 13.5, str(result[cnt]), size=7,
                                verticalalignment='center')
                 cnt += 1
         fig.savefig("samples/targets_swapped_" + str(epoch).zfill(len(str(self.epochs))) + ".png")
