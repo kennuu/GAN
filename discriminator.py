@@ -47,6 +47,7 @@ class Discriminator:
         z = tf.reshape(z, [-1, 7*7*256])
         logits = tf.matmul(z, self.W5)
         logits = tf.nn.bias_add(logits, self.b5)
+
         return logits
 
 

@@ -46,11 +46,11 @@ class DCGAN:
         disc_logits_fake = self.discriminator.forward(self.gen_out)
         disc_logits_real = self.discriminator.forward(self.phX)
 
-        disc_fake_loss = cost(tf.zeros_like(disc_logits_fake), disc_logits_fake)
-        disc_real_loss = cost(tf.ones_like(disc_logits_real), disc_logits_real)
+        disc_fake_loss = cost(tf.ones_like(disc_logits_fake), disc_logits_fake)
+        disc_real_loss = cost(tf.zeros_like(disc_logits_real), disc_logits_real)
 
         self.disc_loss = tf.add(disc_fake_loss, disc_real_loss)
-        self.gen_loss = cost(tf.ones_like(disc_logits_fake), disc_logits_fake)
+        self.gen_loss = cost(tf.zeros_like(disc_logits_fake), disc_logits_fake)
 
         train_vars = tf.trainable_variables()
 
@@ -103,14 +103,17 @@ class DCGAN:
         cnt = 0
         for i in range(c):
             for j in range(r):
-                # print(imgs[cnt, -1, :, 0])
                 axs[i, j].imshow(imgs[cnt, :, :, 0], cmap="gray")
                 axs[i, j].axis('off')
-                axs[i, j].set_title(str(y[cnt]), size=7, pad=0.5)
+                # if discs[cnt]:
+                #     col = 'g'
+                # else:
+                #     col = 'r'
+                axs[i, j].set_title(str(y[cnt]), size=7, pad=0.5) #, color = col)
                 axs[i, j].text(30, 13.5, str(np.argmax(imgs[cnt, :, -1, 0])), size=7,
                                verticalalignment='center')
                 cnt += 1
-        fig.savefig("samples/" + str(epoch).zfill(len(str(self.epochs))) + ".png")
+        fig.savefig("samples/targets_swapped_" + str(epoch).zfill(len(str(self.epochs))) + ".png")
         plt.close()
 
 
@@ -118,15 +121,13 @@ class DCGAN:
 if __name__ == '__main__':
     img_shape = (28, 28, 1)
 
-    # if os.environ.get('LOCAL')!='TRUE':
-    #     epochs = 500000
-    #     epochs_for_sample = 10000
-    # else:
-    #     epochs = 10000
-    # FIXME: doesn't work currently, maybe gets fixed if pycharm is restarted?
-
-    epochs = 500000
-    epochs_for_sample = 10000
+    if os.environ.get('LOCAL')!='TRUE':
+        epochs = 500000
+        epochs_for_sample = 10000
+    else:
+        print('running local')
+        epochs = 10000
+        epochs_for_sample = 1
 
     print(epochs, epochs_for_sample)
     dcgan = DCGAN(img_shape, epochs, epochs_for_sample=epochs_for_sample)
